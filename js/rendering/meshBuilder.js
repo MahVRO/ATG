@@ -34,7 +34,7 @@ class ChunkMeshBuilder {
         return new THREE.CanvasTexture(canvas);
     }
 
-    buildChunkMesh(chunk) {
+    buildChunkMesh(chunk, chunkManager) {
         const positions = [];
         const colors = [];
         const indices = [];
@@ -46,21 +46,17 @@ class ChunkMeshBuilder {
                     const blockId = chunk.getBlock(lx, y, lz);
 
                     if (blockId === 0) continue; // Skip air
-                    if (BLOCK_REGISTRY.isTransparent(blockId)) continue; // Skip transparent
 
                     const block = BLOCK_REGISTRY.getBlock(blockId);
                     const color = block ? block.color : 0xffffff;
 
-                    const worldX = chunk.getWorldX(lx);
-                    const worldZ = chunk.getWorldZ(lz);
-
                     // Check each face
-                    this.addFaceIfExposed(chunk, lx, y, lz, 0, 1, 0, positions, colors, indices, indexCount, color); // Top
-                    this.addFaceIfExposed(chunk, lx, y, lz, 0, -1, 0, positions, colors, indices, indexCount, color); // Bottom
-                    this.addFaceIfExposed(chunk, lx, y, lz, 1, 0, 0, positions, colors, indices, indexCount, color); // Right
-                    this.addFaceIfExposed(chunk, lx, y, lz, -1, 0, 0, positions, colors, indices, indexCount, color); // Left
-                    this.addFaceIfExposed(chunk, lx, y, lz, 0, 0, 1, positions, colors, indices, indexCount, color); // Front
-                    this.addFaceIfExposed(chunk, lx, y, lz, 0, 0, -1, positions, colors, indices, indexCount, color); // Back
+                    this.addFaceIfExposed(chunk, chunkManager, lx, y, lz, 0, 1, 0, positions, colors, indices, indexCount, color); // Top
+                    this.addFaceIfExposed(chunk, chunkManager, lx, y, lz, 0, -1, 0, positions, colors, indices, indexCount, color); // Bottom
+                    this.addFaceIfExposed(chunk, chunkManager, lx, y, lz, 1, 0, 0, positions, colors, indices, indexCount, color); // Right
+                    this.addFaceIfExposed(chunk, chunkManager, lx, y, lz, -1, 0, 0, positions, colors, indices, indexCount, color); // Left
+                    this.addFaceIfExposed(chunk, chunkManager, lx, y, lz, 0, 0, 1, positions, colors, indices, indexCount, color); // Front
+                    this.addFaceIfExposed(chunk, chunkManager, lx, y, lz, 0, 0, -1, positions, colors, indices, indexCount, color); // Back
 
                     indexCount = indices.length / 3;
                 }
@@ -90,8 +86,12 @@ class ChunkMeshBuilder {
         return mesh;
     }
 
-    addFaceIfExposed(chunk, lx, y, lz, dx, dy, dz, positions, colors, indices, indexCount, color) {
-        const adjBlockId = chunk.getBlock(lx + dx, y + dy, lz + dz);
+    addFaceIfExposed(chunk, chunkManager, lx, y, lz, dx, dy, dz, positions, colors, indices, indexCount, color) {
+        const wx = chunk.getWorldX(lx);
+        const wy = y;
+        const wz = chunk.getWorldZ(lz);
+        
+        const adjBlockId = chunkManager.getBlock(wx + dx, wy + dy, wz + dz);
 
         if (adjBlockId === 0 || BLOCK_REGISTRY.isTransparent(adjBlockId)) {
             this.addFace(lx, y, lz, dx, dy, dz, positions, colors, indices, indexCount, color);

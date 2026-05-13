@@ -61,8 +61,11 @@ class PlayerPhysics {
         if (this.keyState.left) moveDir.x -= speed;
         if (this.keyState.right) moveDir.x += speed;
 
-        // Rotate by camera
-        moveDir.applyAxisAngle(new THREE.Vector3(0, 1, 0), window.cameraController.camera.rotation.y);
+        // Rotate by camera (get camera rotation safely)
+        if (window.cameraController && window.cameraController.camera) {
+            const cameraYaw = window.cameraController.camera.rotation.y;
+            moveDir.applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw);
+        }
 
         this.velocity.x = moveDir.x;
         this.velocity.z = moveDir.z;

@@ -85,7 +85,7 @@ class ChunkManager {
             const chunk = this.rebuildQueue.shift();
             if (chunk && chunk.meshDirty) {
                 chunk.disposeMesh();
-                const mesh = this.meshBuilder.buildChunkMesh(chunk);
+                const mesh = this.meshBuilder.buildChunkMesh(chunk, this);
                 if (mesh) {
                     chunk.mesh = mesh;
                     this.renderer.getScene().add(mesh);
