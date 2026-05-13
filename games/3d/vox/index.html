@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOX - Voxel World</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Courier New', monospace;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* HUD Elements */
+        #hud {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            pointer-events: auto;
+            z-index: 100;
+        }
+
+        .hotbar {
+            display: flex;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border: 2px solid #00d084;
+            border-radius: 4px;
+        }
+
+        .hotbar-slot {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 20, 40, 0.9);
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .hotbar-slot.active {
+            border: 2px solid #00d084;
+            box-shadow: 0 0 10px rgba(0, 208, 132, 0.5);
+        }
+
+        /* Info Panel */
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border: 2px solid #00d084;
+            border-radius: 4px;
+            color: #00d084;
+            font-size: 13px;
+            width: 200px;
+            pointer-events: auto;
+        }
+
+        #info div {
+            margin: 5px 0;
+        }
+
+        /* Game Mode Selector */
+        #gamemodePanel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 30px;
+            border: 3px solid #00d084;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+            z-index: 200;
+            pointer-events: auto;
+        }
+
+        #gamemodePanel h2 {
+            color: #00d084;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .mode-button {
+            display: block;
+            width: 200px;
+            padding: 15px;
+            margin: 10px auto;
+            background: rgba(0, 208, 132, 0.2);
+            border: 2px solid #00d084;
+            color: #00d084;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .mode-button:hover {
+            background: #00d084;
+            color: #000;
+        }
+
+        /* Chat */
+        #chatContainer {
+            position: absolute;
+            bottom: 90px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00d084;
+            border-radius: 4px;
+            width: 300px;
+            max-height: 200px;
+            overflow-y: auto;
+            pointer-events: auto;
+        }
+
+        .chat-message {
+            color: #00d084;
+            font-size: 12px;
+            padding: 5px 10px;
+            border-bottom: 1px solid rgba(0, 208, 132, 0.2);
+        }
+
+        #chatInput {
+            width: calc(100% - 30px);
+            margin: 10px 15px;
+            padding: 8px;
+            background: rgba(0, 20, 40, 0.9);
+            border: 1px solid #00d084;
+            color: #00d084;
+            border-radius: 2px;
+            font-family: 'Courier New', monospace;
+        }
+
+        #chatInput::placeholder {
+            color: #004d36;
+        }
+
+        /* Crosshair */
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00d084;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        #crosshair::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 6px;
+            background: #00d084;
+            left: 50%;
+            top: -6px;
+            transform: translateX(-50%);
+        }
+
+        #crosshair::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 6px;
+            background: #00d084;
+            left: 50%;
+            bottom: -6px;
+            transform: translateX(-50%);
+        }
+
+        /* Instructions */
+        #instructions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border: 2px solid #00d084;
+            border-radius: 4px;
+            color: #00d084;
+            font-size: 12px;
+            width: 200px;
+            pointer-events: auto;
+        }
+
+        #instructions h3 {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .key {
+            background: rgba(0, 208, 132, 0.2);
+            padding: 2px 5px;
+            border-radius: 2px;
+            font-weight: bold;
+            margin: 0 2px;
+        }
+
+        /* Pause Menu */
+        #pauseMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 30px;
+            border: 3px solid #00d084;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+            z-index: 300;
+            pointer-events: auto;
+        }
+
+        #pauseMenu h2 {
+            color: #00d084;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .pause-button {
+            display: block;
+            width: 200px;
+            padding: 12px;
+            margin: 8px auto;
+            background: rgba(0, 208, 132, 0.2);
+            border: 2px solid #00d084;
+            color: #00d084;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .pause-button:hover {
+            background: #00d084;
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .hotbar-slot {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <div id="info">
+            <div><strong>VOX</strong></div>
+            <div>X: <span id="posX">0</span></div>
+            <div>Y: <span id="posY">0</span></div>
+            <div>Z: <span id="posZ">0</span></div>
+            <div>Mode: <span id="modeDisplay">Creative</span></div>
+        </div>
+
+        <div id="instructions">
+            <h3>Controls</h3>
+            <div><span class="key">W/A/S/D</span> Move</div>
+            <div><span class="key">SPACE</span> Jump</div>
+            <div><span class="key">LMB</span> Break</div>
+            <div><span class="key">RMB</span> Place</div>
+            <div><span class="key">1-0</span> Hotbar</div>
+            <div><span class="key">T</span> Chat</div>
+            <div><span class="key">ESC</span> Pause</div>
+        </div>
+
+        <div id="crosshair"></div>
+
+        <div id="chatContainer">
+            <div id="chatMessages"></div>
+            <input type="text" id="chatInput" placeholder="Press T to chat..." style="display: none;">
+        </div>
+
+        <div id="hud">
+            <div class="hotbar" id="hotbar"></div>
+        </div>
+
+        <div id="gamemodePanel">
+            <h2>Select Gamemode</h2>
+            <button class="mode-button" onclick="startGame('creative')">🎨 Creative Mode</button>
+            <button class="mode-button" onclick="startGame('survival')">⛏️ Survival Mode</button>
+        </div>
+
+        <div id="pauseMenu">
+            <h2>PAUSED</h2>
+            <button class="pause-button" onclick="resumeGame()">Resume</button>
+            <button class="pause-button" onclick="changeGamemode()">Change Mode</button>
+            <button class="pause-button" onclick="goHome()">Back to Home</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="systems/blocks.js"></script>
+    <script src="systems/world.js"></script>
+    <script src="systems/player.js"></script>
+    <script src="systems/input.js"></script>
+    <script src="systems/ui.js"></script>
+    <script src="systems/chat.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

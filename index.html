@@ -19,21 +19,30 @@
 
     <header class="hero">
         <div class="container">
-            <h2>Play Amazing Games</h2>
-            <p>A collection of crazy 2D and 3D games built with pure web tech</p>
+            <h2>🎮 VOX</h2>
+            <p>Build, Explore, Survive - A Voxel World Awaits</p>
         </div>
     </header>
 
     <section id="games" class="games-section">
         <div class="container">
-            <div class="filter-buttons">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="2d">2D Games</button>
-                <button class="filter-btn" data-filter="3d">3D Games</button>
-            </div>
-
-            <div class="games-grid" id="gamesGrid">
-                <!-- Games will be loaded here dynamically -->
+            <div class="game-card-single">
+                <div class="game-thumbnail">🎮</div>
+                <div class="game-info">
+                    <h3>VOX - Voxel World</h3>
+                    <span class="game-type">3D Sandbox</span>
+                    <p class="game-description">
+                        A blocky voxel world where you can build, explore, and survive. 
+                        Create your own structures, mine resources, and experience multiple gamemodes.
+                    </p>
+                    <div class="game-features">
+                        <span class="feature">🏗️ Building</span>
+                        <span class="feature">⛏️ Mining</span>
+                        <span class="feature">💬 Chat</span>
+                        <span class="feature">🎮 Gamemodes</span>
+                    </div>
+                    <button class="play-btn" onclick="openGame('vox')">Play VOX</button>
+                </div>
             </div>
         </div>
     </section>
