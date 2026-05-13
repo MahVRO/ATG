@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AllTheGames - Play 2D & 3D Games</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">🎮 AllTheGames</h1>
+            <ul class="nav-links">
+                <li><a href="#games">Games</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <h2>Play Amazing Games</h2>
+            <p>A collection of crazy 2D and 3D games built with pure web tech</p>
+        </div>
+    </header>
+
+    <section id="games" class="games-section">
+        <div class="container">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="2d">2D Games</button>
+                <button class="filter-btn" data-filter="3d">3D Games</button>
+            </div>
+
+            <div class="games-grid" id="gamesGrid">
+                <!-- Games will be loaded here dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about-section">
+        <div class="container">
+            <h2>About This Project</h2>
+            <p>A collection of games built to explore game development with HTML5, Canvas, WebGL, and Three.js. Started as a passion project to create fun experiences in the browser.</p>
+            <p><strong>Want to contribute?</strong> Check out the README and add your own games!</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 AllTheGames. Built with ❤️ using web tech.</p>
+        </div>
+    </footer>
+
+    <script src="js/gameManager.js"></script>
+</body>
+</html>
