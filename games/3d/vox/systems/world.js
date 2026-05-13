@@ -35,31 +35,32 @@ class WorldGenerator {
     // Generate a block at coordinates
     getBlock(x, y, z) {
         // Bedrock at bottom
-        if (y < 2) return BLOCK_TYPES.BEDROCK || BLOCK_TYPES.STONE;
+        if (y < 2) return BLOCK_TYPES.STONE;
 
-        const heightLevel = 100;
-        const terrainNoise = this.perlinNoise(x * 0.1, z * 0.1, this.seed, 4);
-        const groundHeight = heightLevel + terrainNoise * 30;
+        const heightLevel = 60;
+        const terrainNoise = this.perlinNoise(x * 0.08, z * 0.08, this.seed, 4);
+        const groundHeight = heightLevel + terrainNoise * 25;
 
-        if (y > groundHeight + 5) return BLOCK_TYPES.AIR;
+        if (y > groundHeight + 10) return BLOCK_TYPES.AIR;
 
         // Generate terrain layers
-        if (y > groundHeight + 2) {
+        if (y > groundHeight) {
             return BLOCK_TYPES.AIR;
-        } else if (y > groundHeight) {
+        } else if (y > groundHeight - 1) {
             // Surface
-            if (terrainNoise > 0.7) {
+            if (terrainNoise > 0.6) {
                 return BLOCK_TYPES.SAND;
             }
             return BLOCK_TYPES.GRASS;
-        } else if (y > groundHeight - 3) {
+        } else if (y > groundHeight - 4) {
             return BLOCK_TYPES.DIRT;
-        } else if (y > groundHeight - 10) {
+        } else if (y > 10) {
             // Ore generation
-            const oreNoise = this.perlinNoise(x * 0.2, y * 0.1, z * 0.2, 2);
-            if (oreNoise > 0.85) return BLOCK_TYPES.COAL_ORE;
-            if (oreNoise > 0.9) return BLOCK_TYPES.IRON_ORE;
-            if (oreNoise > 0.95) return BLOCK_TYPES.DIAMOND_ORE;
+            const oreNoise = this.perlinNoise(x * 0.15, y * 0.08, z * 0.15, 2);
+            if (oreNoise > 0.92) return BLOCK_TYPES.DIAMOND_ORE;
+            if (oreNoise > 0.88) return BLOCK_TYPES.GOLD_ORE;
+            if (oreNoise > 0.85) return BLOCK_TYPES.IRON_ORE;
+            if (oreNoise > 0.8) return BLOCK_TYPES.COAL_ORE;
             return BLOCK_TYPES.STONE;
         } else {
             return BLOCK_TYPES.STONE;
@@ -68,19 +69,25 @@ class WorldGenerator {
 
     // Generate trees
     generateTrees(chunkX, chunkZ, blocks) {
-        const treeChance = 0.02;
-        for (let lx = 0; lx < CHUNK_SIZE; lx++) {
-            for (let lz = 0; lz < CHUNK_SIZE; lz++) {
+        const treeChance = 0.01;
+        for (let lx = 2; lx < CHUNK_SIZE - 2; lx++) {
+            for (let lz = 2; lz < CHUNK_SIZE - 2; lz++) {
                 const x = chunkX * CHUNK_SIZE + lx;
                 const z = chunkZ * CHUNK_SIZE + lz;
 
-                if (this.noise(x * 13, z * 13, this.seed * 7) < treeChance) {
+                if (this.noise(x * 17, z * 17, this.seed * 13) < treeChance) {
                     // Find ground
-                    for (let y = 120; y > 80; y--) {
-                        if (blocks[y] && blocks[y][lx] && blocks[y][lx][lz] === BLOCK_TYPES.GRASS) {
-                            this.generateTree(x, y + 1, z, lx, lz, blocks);
+                    let groundY = -1;
+                    for (let y = 80; y > 50; y--) {
+                        const block = blocks[y] && blocks[y][lx] && blocks[y][lx][lz];
+                        if (block && block !== BLOCK_TYPES.AIR) {
+                            groundY = y + 1;
                             break;
                         }
+                    }
+                    
+                    if (groundY > 0) {
+                        this.generateTree(x, groundY, z, lx, lz, blocks);
                     }
                 }
             }
@@ -88,27 +95,31 @@ class WorldGenerator {
     }
 
     generateTree(x, y, z, lx, lz, blocks) {
-        const height = 5 + Math.floor(this.noise(x, y, z) * 3);
+        const height = 4 + Math.floor(this.noise(x, y, z) * 3);
         
         // Tree trunk
-        for (let i = 0; i < height; i++) {
-            if (y + i < CHUNK_HEIGHT) {
-                blocks[y + i] = blocks[y + i] || {};
-                blocks[y + i][lx] = blocks[y + i][lx] || {};
-                blocks[y + i][lx][lz] = BLOCK_TYPES.OAK_LOG;
-            }
+        for (let i = 0; i < height && y + i < CHUNK_HEIGHT; i++) {
+            blocks[y + i] = blocks[y + i] || {};
+            blocks[y + i][lx] = blocks[y + i][lx] || {};
+            blocks[y + i][lx][lz] = BLOCK_TYPES.OAK_LOG;
         }
 
         // Tree canopy
-        const canopyTop = y + height + 2;
-        for (let cx = -2; cx <= 2; cx++) {
-            for (let cz = -2; cz <= 2; cz++) {
-                for (let cy = 0; cy < 4; cy++) {
+        const canopyStart = y + height;
+        const canopyRadius = 2;
+        for (let cy = 0; cy < 4; cy++) {
+            for (let cx = -canopyRadius; cx <= canopyRadius; cx++) {
+                for (let cz = -canopyRadius; cz <= canopyRadius; cz++) {
                     const dist = Math.sqrt(cx * cx + cz * cz);
-                    if (dist < 2.5 && canopyTop - cy < CHUNK_HEIGHT && canopyTop - cy >= 0) {
-                        blocks[canopyTop - cy] = blocks[canopyTop - cy] || {};
-                        blocks[canopyTop - cy][lx + cx] = blocks[canopyTop - cy][lx + cx] || {};
-                        blocks[canopyTop - cy][lx + cx][lz + cz] = BLOCK_TYPES.OAK_LEAVES;
+                    const canopyY = canopyStart + cy;
+                    if (dist < canopyRadius && canopyY < CHUNK_HEIGHT) {
+                        const glx = lx + cx;
+                        const glz = lz + cz;
+                        if (glx >= 0 && glx < CHUNK_SIZE && glz >= 0 && glz < CHUNK_SIZE) {
+                            blocks[canopyY] = blocks[canopyY] || {};
+                            blocks[canopyY][glx] = blocks[canopyY][glx] || {};
+                            blocks[canopyY][glx][glz] = BLOCK_TYPES.OAK_LEAVES;
+                        }
                     }
                 }
             }

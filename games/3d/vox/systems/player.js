@@ -56,8 +56,8 @@ class Player {
         this.gameMode = gameMode;
         this.inventory = new Inventory();
 
-        // Position
-        this.position = new THREE.Vector3(50, 150, 50);
+        // Position - spawn higher up so we can see terrain
+        this.position = new THREE.Vector3(50, 80, 50);
         this.velocity = new THREE.Vector3(0, 0, 0);
         this.acceleration = new THREE.Vector3(0, 0, 0);
 
