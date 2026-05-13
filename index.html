@@ -3,14 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AllTheGames</title>
+    <title>Voxel Sandbox - 3D Browser Game</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>🎮 AllTheGames</h1>
-        <p>Ready for something awesome...</p>
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Loading screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <h1>Voxel Sandbox</h1>
+            <p>Initializing...</p>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
     </div>
-    <script src="js/gameManager.js"></script>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Game Systems -->
+    <script src="js/utils/noise.js"></script>
+    <script src="js/utils/math.js"></script>
+    
+    <script src="js/blocks/registry.js"></script>
+    
+    <script src="js/engine/renderer.js"></script>
+    <script src="js/engine/camera.js"></script>
+    
+    <script src="js/world/chunk.js"></script>
+    <script src="js/world/terrain.js"></script>
+    <script src="js/rendering/meshBuilder.js"></script>
+    <script src="js/world/chunkManager.js"></script>
+    
+    <script src="js/player/physics.js"></script>
+    <script src="js/player/interaction.js"></script>
+    
+    <script src="js/inventory/inventory.js"></script>
+    
+    <script src="js/save/storage.js"></script>
+    
+    <script src="js/ui/uiManager.js"></script>
+    
+    <!-- Main Game -->
+    <script src="js/game.js"></script>
 </body>
 </html>
