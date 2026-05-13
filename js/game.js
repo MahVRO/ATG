@@ -23,6 +23,14 @@ class VoxelSandbox {
     }
 
     async initialize() {
+        // Hide loading screen after a delay (loading happens in background)
+        const hideLoadingScreen = () => {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+                loadingScreen.style.display = 'none';
+            }
+        };
+
         // Initialize renderer
         this.renderer = new GameRenderer();
         this.renderer.initialize(document.getElementById('game-canvas'));
@@ -54,6 +62,9 @@ class VoxelSandbox {
 
         // Setup input
         this.setupInput();
+
+        // Hide loading screen
+        setTimeout(hideLoadingScreen, 500);
 
         // Start game loop
         this.isRunning = true;
